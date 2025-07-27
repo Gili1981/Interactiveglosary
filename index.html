@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Se actualiza el título de la página a petición del usuario -->
+  <title>Practice your legal Terms. (GMDM) Indiana - PUCP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #3498db;
+      color: #fff;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .option-button {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+      border: 1px solid #bdc3c7;
+    }
+    .option-button:hover {
+      background-color: #d0dce5;
+    }
+    .correct {
+      background-color: #27ae60 !important;
+      color: #fff !important;
+    }
+    .incorrect {
+      background-color: #c0392b !important;
+      color: #fff !important;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #score {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Encabezado actualizado según petición -->
+  <h1>Practice your legal Terms. (GMDM) Indiana - PUCP</h1>
+  <div id="intro" class="container">
+    <p>Selecciona el modo de práctica que prefieras:</p>
+    <button onclick="startQuiz('definition')">Adivinar el término a partir de la definición</button>
+    <button onclick="startQuiz('term')">Adivinar la definición a partir del término</button>
+  </div>
+
+  <div id="quiz" class="container" style="display:none;">
+    <p id="question"></p>
+    <div id="options"></div>
+    <div id="feedback"></div>
+    <div id="score"></div>
+    <button id="nextButton" onclick="nextQuestion()" style="display:none;">Siguiente pregunta</button>
+    <!-- Contenedor para el mensaje final -->
+    <div id="finalMessage" style="display:none; font-weight:bold; margin-top:20px;"></div>
+  </div>
+
+  <script>
+    // Diccionario de términos y definiciones, idéntico al usado en el script de Python.
+    const glossary = {
+      "Adjournment": "a temporary postponement of a case, for example, at the end of the day",
+      "Affidavit": "a sworn written statement",
+      "Bail": "money paid to the court to guarantee the defendant’s attendance at court at a later date. Money paid is more commonly known as a bail bond",
+      "Beneficiary": "the person named in a will or insurance policy and who will benefit from it. A beneficiary may also be the equitable named person under a trust, where the legal owner is the trustee",
+      "Cause of action": "the reason/grounds on which the legal action is being submitted/brought to the court",
+      "Caveat emptor": "Latin meaning ‘buyer beware’; this legal doctrine means that if a person does not take due care when buying something, he/she cannot take the case before the courts",
+      "Damages": "money paid to someone who has suffered injury or loss as a result of an action by a third party",
+      "Debtor": "someone who owes money to a creditor",
+      "Decision": "the verdict of a court in a case",
+      "Escrow": "money paid into an account in the name of a third party which is then released once certain conditions have been fulfilled (usually when buying a house)",
+      "Fault": "to be ‘at fault’ means that a person is to blame for something",
+      "Felony": "a crime the nature of which is serious enough for a person to spend one or more years in jail",
+      "Fiduciary duty": "a situation where a person has an obligation to act in the best interests of a third party",
+      "Good faith": "a situation where a person acts honestly and without deception",
+      "Grand jury": "a group of civilians convened to determine whether or not a criminal case has enough merit to proceed to trial",
+      "Grantor": "the person who establishes a trust on behalf of the beneficiaries",
+      "Real property": "land and all things attached to the land (buildings, etc.)",
+      "Reasonable": "the level that an ordinary person would be expected to have; e.g., ‘reasonable care’ means the level of care expected from an average, rational person",
+      "Settlement": "an agreement or decision in a civil case",
+      "Standard of care": "degree of care required to prevent injury to another",
+      "Statute of limitations": "the period prescribed by law within which a person has to file a lawsuit; otherwise he/she forfeits the right to bring an action",
+      "Testator": "person who makes a will",
+      "Tort": "a civil wrong",
+      "Trust": "property or money given to a trustee to manage on behalf of beneficiaries",
+      "Verdict": "formal decision by a jury/court on the facts of a case",
+      "Witness": "a person who gives evidence in court under oath",
+      "Writ": "a judicial order",
+      "Quid pro quo": "is a Latin term which means a person will get something for having given something",
+      "Heir": "a person entitled by law to inherit the estate of a deceased person",
+      "Implied": "the appearance given of something—thus, there is an ‘implied warranty’ when a person has given the appearance that there was a warranty, even if there was not an explicit one",
+      "Incompetency": "a situation where the person lacks legal qualification or fitness to discharge a legal duty",
+      "Joint custody": "means that both parents have equal rights to the care of a child following a divorce",
+      "Joint and several liability": "means that a person agrees to be jointly and individually liable for a debt with another person",
+      "Judgment": "the official decision given by a court",
+      "Minor": "a person under the legal age of consent (18)",
+      "Motion": "a request made to a judge asking him/her to rule on an issue of law",
+      "Natural person": "an individual – as opposed to a company or partnership",
+      "Negligence": "a failure to use the expected degree of care",
+      "Notary public": "person authorized to witness documents by putting a seal on them, for example",
+      "Oath": "a solemn promise to tell the truth in court",
+      "Order": "direction (written or oral) of a court",
+      "Petition": "a written application to the court asking the court to take action on a specific matter",
+      "Plaintiff": "the person who commences a lawsuit",
+      "Pleadings": "in civil cases, the allegations made by each of the parties to the case",
+      "Alimony": "also known as ‘maintenance’ and ‘spousal support’; alimony is the money paid by one spouse to another following a divorce",
+      "Allegation": "a claim that something is a fact, which a party in a case claims to be able to prove; assertions without proof until they are proved",
+      "Annul": "to make invalid, void",
+      "Brief": "a legal document that sets out the legal arguments in a lawsuit; also the summary of a case by a law student for a class",
+      "Burden of proof": "the duty, in law, to show according to the facts that the allegations to the lawsuit are either false or true",
+      "Certified copy": "also known as a ‘certified true copy’; this is a document signed as being a true copy of the original",
+      "Certify": "to testify in writing",
+      "Class action lawsuit": "a case where two or more plaintiffs join together to bring a case against another party",
+      "Annulment": "a legal decree stating that a marriage was not valid – not to be confused with ‘divorce’",
+      "Appeal": "a request to a higher court to overturn the judgment of a lower one",
+      "Arbitration": "a method of amicable dispute resolution",
+      "Collateral": "the security (money, property, for example) that a person agrees to put down on a loan and which he/she will have to forfeit in the event that he/she cannot repay the loan – also known as ‘security’",
+      "Complaint": "a civil law action that initiates a lawsuit",
+      "Conditions": "circumstances which are essential to the ascertaining of a right; for example, it may be a condition to a loan that a person gives security; without giving security, the person does not have the right to the loan",
+      "Deed": "a written legal document describing a piece of property and setting out the boundaries of that property",
+      "Default": "the failure to do something (an obligation) required under contract; ordinarily the obligation is to pay money, which if the person does not pay, would mean he/she is in default of the contract",
+      "Defendant": "the person who has charges to answer (criminal), or is being sued (civil)",
+      "Escrow agent": "the person appointed to look after the escrow account",
+      "Estate": "all of the property of a deceased person",
+      "Evidence": "documents, etc., that prove a claim as to the facts in a case",
+      "Fine": "punishment imposed for an offence, usually monetary",
+      "Foreclosure": "a situation that occurs when a borrower cannot repay debts and the creditor takes possession of the property and sells it – for example, a house",
+      "Franchise": "a business relationship whereby the owner of a business licenses others to use the name of his business",
+      "Guarantee": "a legal agreement under which a person agrees to guarantee the obligations of another",
+      "Guarantor": "the person who provides a guarantee on behalf of another",
+      "Injunction": "a court order requiring a person to stop doing something",
+      "Intestate": "means to die without having left a will",
+      "Jurisdiction": "the court’s authority to hear a case",
+      "Jury": "group of twelve citizens charged with hearing a case",
+      "Arraignment": "the initial appearance before a judge in a criminal case – it is at this hearing that a defendant can enter a plea, ask to post bail, and, if the defendant cannot afford one, have a court lawyer appointed",
+      "Conflict of interest": "a situation where a person has competing interests in something that would make it difficult or impossible for him/her to fulfill the duty impartially",
+      "Consideration": "the thing, usually money, which a person pays under a contract in exchange for getting something else",
+      "Contract": "a legal agreement entered into between two or more persons, known as ‘parties to the contract’, whereby an offer is made and accepted",
+      "Deposition": "the act where a witness testifies under oath; later there is a pre-trial discovery to determine whether or not the deposition is in fact true",
+      "Discovery": "the pre-trial process where each party to a case will ask for documentation and information relevant to their case",
+      "Dismissal": "the termination of a case",
+      "Executor": "person named in a will to disburse the estate",
+      "Exhibit": "document or evidence provided to a court to support a claim",
+      "Liability": "a duty or obligation for which a person is legally responsible",
+      "Limited liability company (LLC)": "a business that has shareholders who are limited in liability to the contribution of the fully paid up share",
+      "Power of attorney": "a legal document authorizing one person to act on behalf of another",
+      "Probate": "the legal process where the court oversees the distribution of property under a will",
+      "Proceedings": "the process of a lawsuit",
+      "Strict liability": "a situation where, even if there is no proof of negligence, a person can still be found guilty of an offence",
+      "Subpoena": "a legal order compelling a person to appear in court",
+      "Summons": "a legal document notifying a person that a lawsuit has been initiated against him/her and how and where it is required to answer the claim",
+      "Award": "a decision, usually by an arbitrator, in favor of a plaintiff or defendant, as the case may be",
+      "Costs": "the sum awarded to the successful party to a lawsuit – and usually amount to the ‘costs’, including legal fees, of having brought the case",
+      "Counsel": "a legal representative: lawyer or attorney",
+      "Creditor": "someone to whom a person owes money",
+      "Custodian": "a person appointed to manage and disperse funds on behalf of a child – unlike a trustee, a custodian is normally a court appointed person",
+      "Double jeopardy": "the process of being tried twice for the same crime/offence—not allowed under law",
+      "Due process": "the legal doctrine that a person’s trial proceedings be fair",
+      "Living will": "a legal document that sets out a person’s wishes should they become incapacitated",
+      "Promissory note": "a written document under which a person promises to pay money to another on a given date, as specified in the terms specified",
+      "Trustee": "person charged with looking after the property under a trust"
+    };
+
+    let mode = null;           // 'definition' o 'term'
+    let keys = Object.keys(glossary);
+    let currentAnswerIndex = null;
+    let correctKey = null;
+    let total = 0;
+    let correct = 0;
+
+    // Número máximo de preguntas por sesión
+    const maxQuestions = 10;
+    // Contador de preguntas respondidas
+    let questionCount = 0;
+
+    function startQuiz(selectedMode) {
+      mode = selectedMode;
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('quiz').style.display = 'block';
+      total = 0;
+      correct = 0;
+      questionCount = 0;
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      // Si se ha alcanzado el número máximo de preguntas, finalizar el quiz
+      if (questionCount >= maxQuestions) {
+        endQuiz();
+        return;
+      }
+      // Reset feedback and buttons
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('nextButton').style.display = 'none';
+      // Generate a random correct key
+      correctKey = keys[Math.floor(Math.random() * keys.length)];
+      const wrongKeys = [];
+      // Pick three incorrect options
+      while (wrongKeys.length < 3) {
+        const candidate = keys[Math.floor(Math.random() * keys.length)];
+        if (candidate !== correctKey && !wrongKeys.includes(candidate)) {
+          wrongKeys.push(candidate);
+        }
+      }
+      const options = wrongKeys.concat(correctKey);
+      shuffleArray(options);
+      currentAnswerIndex = options.indexOf(correctKey);
+      // Set question text
+      if (mode === 'definition') {
+        document.getElementById('question').textContent = glossary[correctKey];
+      } else {
+        document.getElementById('question').textContent = correctKey;
+      }
+      // Build option buttons
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      options.forEach((key, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-button';
+        if (mode === 'definition') {
+          btn.textContent = key;
+        } else {
+          btn.textContent = glossary[key];
+        }
+        btn.onclick = () => checkAnswer(idx, btn);
+        optionsDiv.appendChild(btn);
+      });
+      // Update score display
+      document.getElementById('score').textContent = `Preguntas correctas: ${correct} de ${total}`;
+    }
+
+    function checkAnswer(selectedIndex, button) {
+      // Disable further clicks
+      const buttons = document.querySelectorAll('.option-button');
+      buttons.forEach(btn => btn.onclick = null);
+      total++;
+      questionCount++;
+      const feedback = document.getElementById('feedback');
+      if (selectedIndex === currentAnswerIndex) {
+        correct++;
+        button.classList.add('correct');
+        feedback.textContent = '¡Correcto!';
+      } else {
+        button.classList.add('incorrect');
+        buttons[currentAnswerIndex].classList.add('correct');
+        feedback.textContent = `Incorrecto. La respuesta correcta estaba resaltada en verde.`;
+      }
+      // Mostrar botón para continuar y actualizar puntuación
+      document.getElementById('nextButton').style.display = 'block';
+      document.getElementById('score').textContent = `Preguntas correctas: ${correct} de ${total}`;
+    }
+
+    /**
+     * Finaliza el quiz después de alcanzar el número máximo de preguntas.
+     * Oculta las preguntas y muestra un mensaje de cierre.
+     */
+    function endQuiz() {
+      // Ocultar elementos del quiz
+      document.getElementById('question').style.display = 'none';
+      document.getElementById('options').style.display = 'none';
+      document.getElementById('nextButton').style.display = 'none';
+      document.getElementById('feedback').style.display = 'none';
+      // Mostrar mensaje final y puntuación
+      const finalDiv = document.getElementById('finalMessage');
+      finalDiv.style.display = 'block';
+      finalDiv.textContent = `Good Job! Final score: ${correct} de ${total}`;
+      document.getElementById('score').textContent = '';
+    }
+
+    // Función de orden aleatorio (Fisher-Yates)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+  </script>
+</body>
+</html>
